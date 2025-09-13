@@ -164,7 +164,8 @@ def main():
                      kernel=args.fds_kernel, ks=args.fds_ks, sigma=args.fds_sigma, momentum=args.fds_mmt,
                      return_features=(args.regularization_weight > 0))
     
-    model = torch.nn.DataParallel(model).cuda()
+    #model = torch.nn.DataParallel(model).cuda()
+    model = model.cuda()
 
     # evaluate only
     if args.evaluate:
