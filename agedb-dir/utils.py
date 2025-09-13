@@ -125,3 +125,87 @@ def get_lds_kernel_window(kernel, ks, sigma):
         kernel_window = list(map(laplace, np.arange(-half_ks, half_ks + 1))) / max(map(laplace, np.arange(-half_ks, half_ks + 1)))
 
     return kernel_window
+
+
+
+
+
+#####################################
+def per_label_frobenius_norm(features, labels):
+    """
+    features: Tensor of shape (N, D)
+    labels: Tensor of shape (N,)
+    Returns: dict {label: avg Frobenius norm}
+    """
+    features = features.view(features.size(0), -1)  # Ensure shape (N, D)
+    labels = labels.view(-1)  # Ensure shape (N,)
+
+    unique_labels = labels.unique()
+    frob_norms = {}
+
+    for label in unique_labels:
+        mask = labels == label
+        feats = features[mask]  # (n_c, D)
+        if feats.size(0) == 0:
+            continue
+        norms = torch.norm(feats, p='fro', dim=1)  # L2 norm per row
+        avg = norms.mean().item()
+        frob_norms[int(label.item())] = avg
+
+    frob_norm = {key  : frob_norms[key] for key in sorted(frob_norms.keys())}
+
+    return frob_norm
+
+
+
+#####################################
+def cal_per_label_Frob(model, train_loader):
+    model.eval()
+    feature, label = [], []
+    with torch.no_grad():
+        for idx, (x, y, _) in enumerate(train_loader):
+            x = x.to(device)
+            _, z_pred = model(x)
+            feature.append(z_pred.cpu())
+            label.append(y)
+        features = torch.cat(feature, dim=0)
+        labels = torch.cat(label)
+    frob_norm = per_label_frobenius_norm(features, labels)
+    return frob_norm
+
+
+
+#####################################
+def cal_per_label_mae(model, train_loader):
+    """
+    #output: Tensor of shape (N, 1)
+    #target: Tensor of shape (N,) with M unique labels
+    Returns: dict mapping each label to its MAE
+    """
+    output, target = [], []
+    with torch.no_grad():
+        for idx, (x, y, _) in enumerate(train_loader):
+            x = x.to(device)
+            y_pred, _ = model(x)
+            #print(y_pred)
+            target.extend(y.squeeze(-1).tolist())
+            output.extend(y_pred.cpu().squeeze(-1).tolist())
+            
+        N = len(target)
+        #print(f'N is {N}')
+        output = torch.tensor(output).reshape(N,)  # (N,)
+        target = torch.tensor(target).reshape(N,)  # (N,)
+
+        unique_labels = target.unique()
+        mae_dict = {}
+
+        for label in unique_labels:
+            mask = target == label
+            if mask.sum() == 0:
+                continue
+            pred_subset = output[mask]
+            true_subset = target[mask].float()
+            mae = torch.abs(pred_subset - true_subset).mean()
+            mae_dict[int(label.item())] = mae.item()
+    #
+    return mae_dict

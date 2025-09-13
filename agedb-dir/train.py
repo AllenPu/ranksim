@@ -174,6 +174,9 @@ def main():
         model.load_state_dict(checkpoint['state_dict'], strict=False)
         print(f"===> Checkpoint '{args.resume}' loaded (epoch [{checkpoint['epoch']}]), testing...")
         validate(test_loader, model, train_labels=train_labels, prefix='Test')
+        #
+        cal_MAE_and_Frobs(model, train_loader, test_loader)
+        #
         return
 
     if args.retrain_fc:
@@ -417,6 +420,58 @@ def shot_metrics(preds, labels, train_labels, many_shot_thr=100, low_shot_thr=20
     shot_dict['low']['gmean'] = gmean(np.hstack(low_shot_gmean), axis=None).astype(float)
 
     return shot_dict
+
+
+
+def cal_MAE_and_Frobs(model_regression, train_loader, test_loader):
+    per_label_MAE_train = cal_per_label_mae(model_regression, train_loader)
+    print('===============train key MAE============='+'\n')
+    k_train = [k for k in per_label_MAE_train.keys()]
+    print(f'k_train is {k_train}')
+    v_train = [per_label_MAE_train[k] for k in per_label_MAE_train.keys()]
+    print(f'v_train is {v_train}')
+    print('===============train MAE============='+'\n')
+    per_label_MAE_test = cal_per_label_mae(model_regression, test_loader)
+    print('===============test key MAE============='+'\n')
+    k_test = [k for k in per_label_MAE_test.keys()]
+    print(f'k_test is {k_test}')
+    v_test = [per_label_MAE_test[k] for k in per_label_MAE_test.keys()]
+    print(f'v_test is {v_test}')
+    print('===============test MAE============='+'\n')
+    #
+    per_label_Frobs_train = cal_per_label_Frob(model_regression, train_loader)
+    per_label_Frobs_test = cal_per_label_Frob(model_regression, test_loader)
+    k_frobs_train = [k for k in per_label_Frobs_train.keys()]
+    k_frobs_test = [k for k in per_label_Frobs_test.keys()]
+    v_frobs_train = [per_label_Frobs_train[k] for k in per_label_Frobs_train.keys()]
+    v_frobs_test = [per_label_Frobs_train[k] for k in per_label_Frobs_test.keys()]
+    print('===============train frobs key============='+'\n')
+    print(f'k_frobs_train is {k_frobs_train}')
+    print('===============train frobs============='+'\n')
+    print(f'v_frobs_train is {v_frobs_train}')
+    print('===============test frobs key============='+'\n')
+    print(f'k_frobs_test is {k_frobs_test}')
+    print('===============test frobs============='+'\n')
+    print(f'v_frobs_test is {v_frobs_test}')
+
+    ####
+    df_train = pd.DataFrame({
+        "train MAE labels" : k_train,
+        "train MAE" : v_train,
+        "train Frobs" : v_frobs_train,
+    })
+
+    df_test = pd.DataFrame({
+        "test MSE labels" : k_test,
+        "test MAE" : v_test,
+        "test Frobs" : v_frobs_test
+    })
+
+
+    df_train.to_csv("ranksim_train.csv", index=False)
+    df_test.to_csv("ranksim_test.csv", index=False)
+
+    return
 
 
 if __name__ == '__main__':
