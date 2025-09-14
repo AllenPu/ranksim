@@ -234,6 +234,7 @@ def main():
         is_best = loss_metric < args.best_loss
         args.best_loss = min(loss_metric, args.best_loss)
         print(f"Best {'L1' if 'l1' in args.loss else 'MSE'} Loss: {args.best_loss:.3f}")
+        print(f' is best {is_best}')
         save_checkpoint(args, {
             'epoch': epoch + 1,
             'model': args.model,
