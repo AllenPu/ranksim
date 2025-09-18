@@ -177,7 +177,7 @@ def cal_per_label_Frob(model, train_loader):
 
 
 #####################################
-def cal_per_abel_mae(model, train_loader):
+def cal_per_label_mae(model, train_loader):
     """
     #output: Tensor of shape (N, 1)
     #target: Tensor of shape (N,) with M unique labels
