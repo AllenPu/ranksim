@@ -169,7 +169,7 @@ def main():
 
     # evaluate only
     if args.evaluate:
-        assert args.resume, 'Specify a trained model using [args.resume]'
+        #assert args.resume, 'Specify a trained model using [args.resume]'
         #
         #checkpoint = torch.load(args.resume)
         checkpoint = torch.load('./home/rpu2/scratch/code/ranksim/agedb-dir/checkpoint/agedb_resnet18_reg100.0_il2.0_adam_l1_0.00025_64_2025-09-14-00:49:07.506795/ckpt.best.pth.tar')
