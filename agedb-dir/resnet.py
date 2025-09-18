@@ -303,7 +303,8 @@ class ResNet(nn.Module):
         if self.training and (self.fds or self.return_features):
             return x, encoding
         else:
-            return x#, encoding
+            # remember to # encoding afterwards
+            return x, encoding
 
 
 
