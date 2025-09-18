@@ -11,6 +11,7 @@ import numpy as np
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal.windows import triang
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class AverageMeter(object):
     def __init__(self, name, fmt=':f'):
