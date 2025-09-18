@@ -177,7 +177,7 @@ def cal_per_label_Frob(model, train_loader):
 
 
 #####################################
-def cal_per_label_mae(model, train_loader):
+def cal_per_abel_mae(model, train_loader):
     """
     #output: Tensor of shape (N, 1)
     #target: Tensor of shape (N,) with M unique labels
@@ -187,8 +187,8 @@ def cal_per_label_mae(model, train_loader):
     with torch.no_grad():
         for idx, (x, y, _) in enumerate(train_loader):
             x = x.to(device)
-            y_pred, _ = model(x)
-            #print(y_pred)
+            y_pred = model(x)
+            print('========================!!!!!!========',y_pred)
             target.extend(y.squeeze(-1).tolist())
             output.extend(y_pred.cpu().squeeze(-1).tolist())
             
