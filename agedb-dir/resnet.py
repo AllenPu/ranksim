@@ -304,7 +304,7 @@ class ResNet(nn.Module):
             return x, encoding
         else:
             # remember to # encoding afterwards
-            return x, encoding
+            return x#, encoding
 
 
 
