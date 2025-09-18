@@ -31,6 +31,8 @@ from ranksim import batchwise_ranking_regularizer
 import os
 os.environ["KMP_WARNINGS"] = "FALSE"
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 # imbalanced related
